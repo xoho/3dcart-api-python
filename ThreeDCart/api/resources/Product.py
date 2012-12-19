@@ -9,7 +9,7 @@ class Product(object):
     fields = {
         'sku':{'cart_field':'ProductID','type':'string'},
         'inventory_level':{'cart_field':'Stock', 'type':'int'},
-        'id':{'cart_field':'ProductID','type':'string'}
+        'id':{'cart_field':'CatalogID','type':'string'}
         }
 
     def __init__(self, connection, inventory_level=None, sku=None, id=None):
@@ -19,11 +19,11 @@ class Product(object):
         self.skus = []
         self.id = id
 
-    def get(self, productId):
-        self.productId = productId
+    def get(self, id):
+
         if self.getOperation:
             try:
-                product = self._connection.execute(self.getOperation, productId=productId, batchSize=1, startNum=1).GetProductDetailsResponse.Product
+                product = self._connection.execute(self.getOperation, batchSize=1, startNum=1, catalogId=id).GetProductDetailsResponse.Product
             except Exception, e:
                 log.exception(e.message)
                 return None

@@ -25,14 +25,15 @@ if __name__ == "__main__":
     log.debug("HOST %s" % (STORE_URL))
     api = ApiClient(STORE_URL, STORE_TOKEN, STORE_USER)
 
-    all_tests = ['inventory','product_count','all_products','limited_products','update_inventory','get_product','inventory_products','update_product_inventory']
+    all_tests = ['inventory','product_count','all_products','limited_products','update_inventory','get_product','inventory_products','update_product_inventory','add_five_to_all']
     #tests = ['update_inventory','inventory_products']
     #tests = ['update_product_inventory']
     #tests = ['inventory']
-    tests = all_tests
+    tests = ['add_five_to_all']
+    #tests = all_tests
 
     sku = 'APPLE-BLUE'
-
+    id = 8
 
     test = "inventory"
     if test in tests:
@@ -40,7 +41,7 @@ if __name__ == "__main__":
         log.debug('running %s...' % test)
 
         # Get inventory for a product
-        log.debug('Product inventory for %s: %s' % (sku, api.Product.get(sku).inventory_level ))
+        log.debug('Product inventory for %s: %s' % (id, api.Product.get(id).inventory_level ))
 
 
     test = "product_count"
@@ -75,18 +76,17 @@ if __name__ == "__main__":
         log.debug('')
         log.debug('running %s...' % test)
         # Get a product
-        log.debug('Get product %s' % sku)
-        product = api.Products.get(sku)
+        log.debug('Get product %s' % id)
+        product = api.Products.get(id)
         log.debug('Product: sku: %s, id:%s, inventory_level:%s' % (product.sku, product.id, product.inventory_level))
-
 
     test = "update_product_inventory"
     if test in tests:
         log.debug('')
         log.debug('running %s...' % test)
         # Update's one product inventory
-        log.debug('Get product %s' % sku)
-        product = api.Products.get(sku)
+        log.debug('Get product %s' % id)
+        product = api.Products.get(id)
         log.debug('Product: sku: %s, id:%s, start inventory_level:%s' % (product.sku, product.id, product.inventory_level))
         product.inventory_level += 5
         product.save()
@@ -119,3 +119,17 @@ if __name__ == "__main__":
         # Gets the invnentories for the list of products
         for product in api.Products.enumerate():
             log.debug('Product %s has %s items' % (product.sku, api.ProductInventory.get(product.sku)))
+
+
+    test = "add_five_to_all"
+    if test in tests:
+        log.debug('')
+        log.debug('running %s...' % test)
+        # Gets the invnentories for the list of products
+        for product in api.Products.enumerate():
+            log.debug('Product: sku: %s, id: %s, inventory_level: %s (original)' % (product.sku, product.id, product.inventory_level))
+            product.inventory_level += 5
+            product.save()
+
+        for product in api.Products.enumerate():
+            log.debug('Product: sku: %s, id: %s, inventory_level: %s (final)' % (product.sku, product.id, product.inventory_level))
