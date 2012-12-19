@@ -9,15 +9,17 @@ class Product(object):
     fields = {
         'sku':{'cart_field':'ProductID','type':'string'},
         'inventory_level':{'cart_field':'Stock', 'type':'int'},
+        'name':{'cart_field':'ProductName', 'type':'string'},
         'id':{'cart_field':'CatalogID','type':'string'}
         }
 
-    def __init__(self, connection, inventory_level=None, sku=None, id=None):
+    def __init__(self, connection, inventory_level=None, sku=None, id=None, name=None):
         self._connection = connection
         self.inventory_level = inventory_level
         self.sku = sku
         self.skus = []
         self.id = id
+        self.name = name
 
     def get(self, id):
 

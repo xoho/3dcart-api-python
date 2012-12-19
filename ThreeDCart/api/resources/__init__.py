@@ -86,7 +86,7 @@ class ResourceAccessor(object):
     def get_count(self):
         try:
             return self._klass.count()
-        except:
+        except Exception, e:
             return None
 
 

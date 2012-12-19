@@ -12,6 +12,7 @@ class Products(ResourceObject):
     fields = {
         'sku':{'cart_field':'ProductID','type':'string'},
         'inventory_level':{'cart_field':'Stock', 'type':'int'},
+        'name':{'cart_field':'ProductName', 'type':'string'},
         'id':{'cart_field':'CatalogID','type':'string'}
     }
 
