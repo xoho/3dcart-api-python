@@ -10,7 +10,7 @@ class Product(object):
         'sku':{'cart_field':'ProductID','type':'string'},
         'inventory_level':{'cart_field':'Stock', 'type':'int'},
         'name':{'cart_field':'ProductName', 'type':'string'},
-        'id':{'cart_field':'CatalogID','type':'string'}
+        'id':{'cart_field':'ProductID','type':'string'}
         }
 
     def __init__(self, connection, inventory_level=None, sku=None, id=None, name=None):
@@ -25,12 +25,12 @@ class Product(object):
 
         if self.getOperation:
             try:
-                product = self._connection.execute(self.getOperation, batchSize=1, startNum=1, catalogId=id).GetProductDetailsResponse.Product
+                product = self._connection.execute(self.getOperation, batchSize=1, startNum=1, productId=id).GetProductDetailsResponse.Product
             except Exception, e:
                 log.exception(e.message)
                 return None
-
             for k,v in self.fields.items():
+                log.debug('%s = %s' % (v['cart_field'], getattr(product,v['cart_field'])))
                 if v['type']=='int':
                     setattr(self, k,int(getattr(product,v['cart_field'])))
                 else:

@@ -29,7 +29,7 @@ if __name__ == "__main__":
     #tests = ['update_inventory','inventory_products']
     #tests = ['update_product_inventory']
     #tests = ['inventory']
-    tests = ['get_product','all_products']
+    tests = ['get_2_products','add_five_to_all']
     #tests = all_tests
 
     sku = 'APPLE-BLUE'
@@ -69,6 +69,22 @@ if __name__ == "__main__":
         log.debug('Getting limited set of products...')
         for product in api.Products.enumerate(start=0, limit=2):
             log.debug("Product: %s" % product.sku)
+
+
+    test = "get_2_products"
+    if test in tests:
+        log.debug('')
+        log.debug('running %s...' % test)
+        # Get a product
+        id_ = sku
+        log.debug('Get product %s' % id_)
+        product = api.Products.get(id_)
+        log.debug('Product: name: %s, sku: %s, id:%s, inventory_level:%s' % (product.name, product.sku, product.id, product.inventory_level))
+        id_ = 'PUREFIF'
+        log.debug('Get product %s' % id_)
+        product = api.Products.get(id_)
+        log.debug('Product: name: %s, sku: %s, id:%s, inventory_level:%s' % (product.name, product.sku, product.id, product.inventory_level))
+
 
 
     test = "get_product"
