@@ -62,7 +62,7 @@ class Product(object):
             return None
 
         if self.advOption:
-            result = self._advConnection.execute("runQuery", sqlStatement="UPDATE options_Advanced SET AO_Stock=%s" % self.inventory_level)
+            result = self._advConnection.execute("runQuery", sqlStatement="UPDATE options_Advanced SET AO_Stock=%s WHERE AO_Sufix='%s'" % (self.inventory_level, self.id))
             log.debug('adv save results:')
             log.debug(result)
             log.debug(dir(result))

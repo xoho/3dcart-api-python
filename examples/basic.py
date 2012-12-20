@@ -51,12 +51,13 @@ if __name__ == "__main__":
         log.debug('')
         log.debug('running %s...' % test)
         # update inventory on an advnaced option
-        product = api.Products.get(sku)
-        log.debug('adv Product: sku: %s, id: %s, inventory_level: %s (original)' % (product.sku, product.id, product.inventory_level))
-        product.inventory_level += 5
-        product.save()
-        updated_product = api.Products.get(sku)
-        log.debug('adv Product: sku: %s, id: %s, inventory_level: %s (final)' % (updated_product.sku, updated_product.id, updated_product.inventory_level))
+        for sku in ['PLASTIC-CASE','SPECK-IPHONE-LTHR']:
+            product = api.Products.get(sku)
+            log.debug('adv Product: sku: %s, id: %s, inventory_level: %s (original)' % (product.sku, product.id, product.inventory_level))
+            product.inventory_level += 5
+            product.save()
+            updated_product = api.Products.get(sku)
+            log.debug('adv Product: sku: %s, id: %s, inventory_level: %s (final)' % (updated_product.sku, updated_product.id, updated_product.inventory_level))
 
 
 
