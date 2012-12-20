@@ -11,9 +11,11 @@ log = logging.getLogger("3dCart.apiClient")
 
 class ApiClient(object):
     base_url  = 'http://api.3dcart.com/cart.asmx?WSDL'
+    adv_base_url = 'http://api.3dcart.com/cart_advanced.asmx?wsdl'
     
     def __init__(self, host, token, user_id): # user_id is ignored - provided only for library compatibility
         self._connection = Connection(self.base_url, host, token)
+        self._advConnection = Connection(self.adv_base_url, host, token)
 
     def connection(self):
         pass
@@ -23,7 +25,7 @@ class ApiClient(object):
         
     def __getattr__(self, attrname):
         try:
-            return ResourceAccessor(attrname, self._connection)
+            return ResourceAccessor(attrname, self._connection, self._advConnection)
         except:
             raise AttributeError
         raise AttributeError

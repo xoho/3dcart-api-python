@@ -29,11 +29,14 @@ if __name__ == "__main__":
     #tests = ['update_inventory','inventory_products']
     #tests = ['update_product_inventory']
     #tests = ['inventory']
-    tests = ['get_2_products','add_five_to_all']
+    #tests = ['get_2_products','add_five_to_all']
+    tests = ['all_products']
+    tests = ['get_product']
+    tests = ['all_products','update_adv_inventory']
     #tests = all_tests
 
-    sku = 'APPLE-BLUE'
-    id = 8
+    sku = 'SPECK-IPHONE-LTHR'
+    id = sku
 
     test = "inventory"
     if test in tests:
@@ -42,6 +45,19 @@ if __name__ == "__main__":
 
         # Get inventory for a product
         log.debug('Product inventory for %s: %s' % (id, api.Product.get(id).inventory_level ))
+
+    test = "update_adv_inventory"
+    if test in tests:
+        log.debug('')
+        log.debug('running %s...' % test)
+        # update inventory on an advnaced option
+        product = api.Products.get(sku)
+        log.debug('adv Product: sku: %s, id: %s, inventory_level: %s (original)' % (product.sku, product.id, product.inventory_level))
+        product.inventory_level += 5
+        product.save()
+        updated_product = api.Products.get(sku)
+        log.debug('adv Product: sku: %s, id: %s, inventory_level: %s (final)' % (updated_product.sku, updated_product.id, updated_product.inventory_level))
+
 
 
     test = "product_count"
