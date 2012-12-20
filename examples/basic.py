@@ -51,7 +51,7 @@ if __name__ == "__main__":
         log.debug('')
         log.debug('running %s...' % test)
         # update inventory on an advnaced option
-        for sku in ['PLASTIC-CASE','SPECK-IPHONE-LTHR']:
+        for sku in ['PLASTIC-CASE']:#,'SPECK-IPHONE-LTHR']:
             product = api.Products.get(sku)
             log.debug('adv Product: sku: %s, id: %s, inventory_level: %s (original)' % (product.sku, product.id, product.inventory_level))
             product.inventory_level += 5

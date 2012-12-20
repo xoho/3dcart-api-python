@@ -62,10 +62,12 @@ class Product(object):
             return None
 
         if self.advOption:
-            result = self._advConnection.execute("runQuery", sqlStatement="UPDATE options_Advanced SET AO_Stock=%s WHERE AO_Sufix='%s'" % (self.inventory_level, self.id))
-            log.debug('adv save results:')
-            log.debug(result)
-            log.debug(dir(result))
+            parent = self._advConnection.execute("runQuery", sqlStatement="SELECT * FROM options_Advanced WHERE AO_Sufix='%s'" % (self.id)).runQueryResponse.runQueryRecord
+            parent_sku = self._advConnection.execute("runQuery", sqlStatement="SELECT * FROM products WHERE catalogId=%s" % (parent.ProductID)).runQueryResponse.runQueryRecord
+            old_adv = self._advConnection.execute('runQuery',sqlStatement="SELECT AO_Stock FROM options_Advanced WHERE AO_Sufix='%s'" % self.id).runQueryResponse.runQueryRecord
+            delta = self.inventory_level - int(old_adv['AO_Stock'])
+            self._advConnection.execute("runQuery", sqlStatement="UPDATE options_Advanced SET AO_Stock=%s WHERE AO_Sufix='%s'" % (self.inventory_level, self.id))
+            self._connection.execute(self.updateOperation, productId=parent_sku.id, quantity=delta, replaceStock=False).UpdateInventoryResponse.NewInventory
             result = self.inventory_level
         else:
             result = self._connection.execute(self.updateOperation, productId=self.sku, quantity=self.inventory_level, replaceStock=True).UpdateInventoryResponse.NewInventory

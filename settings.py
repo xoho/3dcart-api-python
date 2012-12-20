@@ -7,7 +7,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 # Error only logging settings
 for func in [
-    'Product',
+    #'Product',
     '3dCart.conn',
     'suds.client',
     'suds.transport.http',
