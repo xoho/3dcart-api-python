@@ -31,8 +31,8 @@ if __name__ == "__main__":
     #tests = ['inventory']
     #tests = ['get_2_products','add_five_to_all']
     tests = ['all_products']
-    tests = ['get_product']
-    tests = ['all_products','update_adv_inventory']
+    #tests = ['get_product']
+    #tests = ['product_count']
     #tests = all_tests
 
     sku = 'SPECK-IPHONE-LTHR'
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         log.debug('running %s...' % test)
         # Get Products
         log.debug('Getting all products...')
-        for product in api.Products.enumerate():
+        for product in api.Products.enumerate(start=1, limit=3):
             log.debug("Product: name: %s, sku: %s, id: %s, inventory_level: %s" % (product.name, product.sku, product.id, product.inventory_level))
 
 
