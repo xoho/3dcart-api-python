@@ -55,6 +55,22 @@ class Product(object):
 
         return None
 
+    def sub_products(self):
+        if self.optionCount>0:
+             # We have options
+             try:
+                 for option in self._advConnection.execute('runQuery',sqlStatement="SELECT * FROM options_Advanced WHERE ProductID=%s" % self.catalogid).runQueryResponse.runQueryRecord:
+                     option_product = Product(connection=self._connection, advConnection=self._advConnection)
+                     option_product.id = option.AO_Sufix
+                     option_product.sku = option_product.id
+                     option_product.name = option.AO_Name
+                     option_product.inventory_level = option.AO_Stock
+                     option_product.advOption = True
+                     yield option_product
+             except:
+                 log.error("Cannot get sub products")
+                 
+                 
     def save(self):
         # Saves the product inventory
         if not self.sku:

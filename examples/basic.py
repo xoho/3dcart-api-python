@@ -21,6 +21,11 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt='%m/%d %H:%M:%S')
 log = logging.getLogger("main")
 
+#logging.getLogger('suds.client').setLevel(logging.DEBUG)
+#logging.getLogger('suds.transport').setLevel(logging.DEBUG)
+#logging.getLogger('suds.xsd.schema').setLevel(logging.DEBUG)
+#logging.getLogger('suds.wsdl').setLevel(logging.DEBUG)
+
 if __name__ == "__main__":
     log.debug("HOST %s" % (STORE_URL))
     api = ApiClient(STORE_URL, STORE_TOKEN, STORE_USER)
@@ -30,13 +35,32 @@ if __name__ == "__main__":
     #tests = ['update_product_inventory']
     #tests = ['inventory']
     #tests = ['get_2_products','add_five_to_all']
-    tests = ['all_products']
+    #tests = ['all_products']
     #tests = ['get_product']
-    #tests = ['product_count']
+    tests = ['product_count']
+    
+    tests = ['slicing']
     #tests = all_tests
 
     sku = 'SPECK-IPHONE-LTHR'
     id = sku
+
+
+    test = "slicing"
+    if test in tests:
+        log.debug("")
+        log.debug('running %s...' % test)
+        
+        count = 0
+        for p in api.Products.enumerate(start=0, limit=100):
+            count += 1
+            print p.catalogid, p.id, p.name
+            for s in p.sub_products():
+                print "\t", s.id, s.name
+        
+        log.debug("Got %d products" % count)
+        
+        
 
     test = "inventory"
     if test in tests:
@@ -74,7 +98,7 @@ if __name__ == "__main__":
         log.debug('running %s...' % test)
         # Get Products
         log.debug('Getting all products...')
-        for product in api.Products.enumerate(start=1, limit=3):
+        for product in api.Products.enumerate():
             log.debug("Product: name: %s, sku: %s, id: %s, inventory_level: %s" % (product.name, product.sku, product.id, product.inventory_level))
 
 
@@ -84,7 +108,7 @@ if __name__ == "__main__":
         log.debug('running %s...' % test)
         # Get a limited set of products
         log.debug('Getting limited set of products...')
-        for product in api.Products.enumerate(start=0, limit=2):
+        for product in api.Products.enumerate():
             log.debug("Product: %s" % product.sku)
 
 

@@ -30,6 +30,7 @@ class ResourceAccessor(object):
             mod = __import__('%s' % resource_name, globals(), locals(), [resource_name], -1)
             self._klass = getattr(mod, resource_name)(self._connection, self._advConnection)
         except:
+            log.exception("ETRR")
             self._klass = ResourceObject(self._connection, self._advConnection)
             
     def enumerate(self, start=0, limit=0, query={}):
@@ -45,29 +46,25 @@ class ResourceAccessor(object):
         @param query: not used, but included for compatibility
         @type query: dict
         """
-
+        
+        remaining = requested_items = limit if limit else sys.maxint
         batchSize = max(1, min(limit, 100)) # keep > 0 but less than 100
         startNum = max(0, start) # keep it positive
-
+        
+        
         # 3dCart is 1's based
         startNum += 1
-
+        
         if self._klass.can_enumerate:
-            if limit==0: # try to get all
-                remaining = self.get_count()
-                startNum = 1
-                while remaining>0:
-                    count = 0
-                    for res in self._klass.enumerate(batchSize=100,startNum=startNum):
-                        count += 1
+            while remaining > 0:
+                batchSize = max(1, min(remaining, 100))
+                try:
+                    for res in self._klass.enumerate(batchSize=batchSize, startNum=startNum):
+                        remaining -= 1
                         yield res
-                    remaining -= count
-                    startNum += count
-
-            else:
-                for res in self._klass.enumerate(batchSize=batchSize,startNum=startNum):
-                    yield res
-
+                except:
+                    remaining = 0
+                startNum += batchSize
         else:
             yield None
 
