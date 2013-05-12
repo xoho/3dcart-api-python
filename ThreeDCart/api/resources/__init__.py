@@ -11,7 +11,7 @@ class ResourceAccessor(object):
     Provides methods that will create, get, and enumerate resourcesObjects.
     """
     
-    def __init__(self, resource_name, connection, advConnection):
+    def __init__(self, resource_name, connection):
         """
         Constructor
         
@@ -24,14 +24,14 @@ class ResourceAccessor(object):
         self._parent = None
         self.__resource_name = resource_name
         self._connection = connection
-        self._advConnection = advConnection
+        
         
         try:
             mod = __import__('%s' % resource_name, globals(), locals(), [resource_name], -1)
-            self._klass = getattr(mod, resource_name)(self._connection, self._advConnection)
+            self._klass = getattr(mod, resource_name)(self._connection)
         except:
             log.exception("ETRR")
-            self._klass = ResourceObject(self._connection, self._advConnection)
+            self._klass = ResourceObject(self._connection)
             
     def enumerate(self, start=0, limit=0, query={}):
         """
@@ -59,11 +59,16 @@ class ResourceAccessor(object):
             while remaining > 0:
                 batchSize = max(1, min(remaining, 100))
                 try:
-                    for res in self._klass.enumerate(batchSize=batchSize, startNum=startNum):
+                    for res in self._klass.enumerate(batchSize=batchSize, startNum=startNum, query=query):
                         remaining -= 1
                         yield res
-                except:
+                except EOFError, e:
                     remaining = 0
+                except:
+                    log.exception("Can't enumerate")
+                    remaining = 0
+                    
+                    
                 startNum += batchSize
         else:
             yield None
@@ -102,9 +107,9 @@ class ResourceObject(object):
     updateOperation = None  # the "update" operation - if None, cannot perform updates
     countOperation = None   # the "count" operation - if None, cannot count
     
-    def __init__(self, connection, advConnection):
+    def __init__(self, connection):
         self._connection = connection
-        self._advConnection = advConnection
+        
 
     def get(self, **kwargs):
         if self.getOperation:
