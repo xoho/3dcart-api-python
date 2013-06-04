@@ -121,7 +121,10 @@ class Adapter(object):
         query = "SELECT * FROM options_Advanced WHERE ProductID=%s" % id
         result = self._connection.execute_sql(query)
         try:
-            return result.runQueryRecord
+            if isinstance(result.runQueryRecord, list):
+                return result.runQueryRecord
+            else:
+                return [result.runQueryRecord]
         except:
             #log.error("Error in %s" % query)
             #log.error("Response %s" % result)
@@ -130,12 +133,13 @@ class Adapter(object):
         
     def get_subproduct(self, id, sku):
         query = "SELECT * FROM options_Advanced WHERE ProductID=%s AND AO_Sufix='%s'" % (id, sku)
+        log.info("Query %s" % query)
         result = self._connection.execute_sql(query)
         try:
             return result.runQueryRecord
         except:
             #log.error("Error in %s" % query)
-            #log.error("Response %s" % result)
+            log.error("Response %s" % result)
             return None
         
     def update_stock_option(self, sku, qty):
