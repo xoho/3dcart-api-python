@@ -40,7 +40,7 @@ class Connection(object):
         try:
             log.debug("Query %s" % query)
             _result = op(storeUrl=self.store_url, userKey=self.token, sqlStatement=query)
-            print _result
+            log.debug("%s" % _result)
             result = _result.runQueryResponse
 
         except Exception, e:
