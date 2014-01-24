@@ -39,7 +39,9 @@ class Connection(object):
 
         try:
             log.debug("Query %s" % query)
-            result = op(storeUrl=self.store_url, userKey=self.token, sqlStatement=query).runQueryResponse
+            _result = op(storeUrl=self.store_url, userKey=self.token, sqlStatement=query)
+            print _result
+            result = _result.runQueryResponse
 
         except Exception, e:
             log.exception(e.message)
@@ -180,10 +182,11 @@ class SQLAdapter(Adapter):
         query = """SELECT Top %d * 
                     From (select count(options_Advanced.AO_Sufix) as option_count, ROW_NUMBER() OVER (ORDER BY products.id) rn, products.id, last_update, stock, name, catalogid FROM products 
                     left join options_Advanced on products.catalogid = options_Advanced.ProductID group by products.id, stock, catalogid, last_update, name) t 
-                    where rn > %d and %s""" % (limit, start - 1, where)
+                    where rn > %d %s""" % (limit, start - 1, "and %s" % where if where else "")
         log.debug("Query: %s" % query)
         
         result = self._connection.execute_sql(query)
+        print result
         return result.runQueryRecord
         
         
