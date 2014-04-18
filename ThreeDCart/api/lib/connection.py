@@ -212,10 +212,10 @@ class AccessAdapter(Adapter):
         if count < (start):
             raise EOFError
         
-        query = """Select top %d count(options_Advanced.AO_Sufix) as option_count, tbl.id, last_update, stock, name, catalogid 
+        query = """Select top %d count(options_Advanced.AO_Sufix) as option_count, tbl.id, last_update, stock, name, catalogid, price, price2, price3, cost, description
                       From [Select Top %d * from products %s order by products.id DESC;]. as tbl 
                       left join options_Advanced on tbl.catalogid = options_Advanced.ProductID
-                      group by products.id, stock, catalogid, last_update, name 
+                      group by products.id, stock, catalogid, last_update, name, price, price2, price3, cost, description
                       order by products.id""" % (limit, count - start + 1, where)
         log.debug("Query: %s" % query)
         
