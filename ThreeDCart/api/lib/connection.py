@@ -96,9 +96,14 @@ class Adapter(object):
         log.info("Using %s" % self.__class__.__name__)
         self._connection = connection
         self._timezone = self.get_timezone()
-        
+    
+    @property    
     def transport(self):
-        return self._connection    
+        return self._connection
+    
+    @property
+    def timezone(self):
+        return self._timezone    
     
     def get_timezone(self):
         result = self._connection.execute_sql("SELECT varvalue FROM store_settings2 WHERE varname Like 'time_zone'")
@@ -158,6 +163,11 @@ class Adapter(object):
         return self._connection.execute('updateProductInventory', productId=id, quantity=qty, replaceStock=replace).UpdateInventoryResponse.NewInventory
 
 
+    def get_orders(self, start, limit, query={}):
+        return []
+    
+
+
 
 class SQLAdapter(Adapter):
     
@@ -186,10 +196,11 @@ class SQLAdapter(Adapter):
         log.debug("Query: %s" % query)
         
         result = self._connection.execute_sql(query)
-        print result
         return result.runQueryRecord
         
         
+        
+    
         
         
 class AccessAdapter(Adapter):
@@ -222,7 +233,53 @@ class AccessAdapter(Adapter):
         result = self._connection.execute_sql(query)
         return result.runQueryRecord
         
-
+        
+    def get_orders(self, start, limit, query={}):
+        where = ""
+        format = "%m/%d/%Y %H:%M:%S"
+        if query.has_key("last_update") and query["last_update"]:
+            local_time = query["last_update"] + timedelta(hours=self._timezone)
+            log.info("Datetime UTC %s - Local: %s" % (query["last_update"].strftime(format), local_time.strftime(format)))
+            where = "Where (last_update > #%s#)" % (local_time.strftime(format))
+            
+        stats = []
+        if query.has_key("statuses") and query["statuses"]:
+            for stat in query["statuses"]:
+                stats.append("order_Status.StatusText='%s'" % stat)
+        
+        if stats:
+            where = "%s and (%s)" % (where, " or ".join(stats))
+        
+        # Get product count
+        count_query = """SELECT Count(*) as items FROM orders 
+                        left join order_Status on orders.order_status = order_Status.id %s""" % (where)
+        result = self._connection.execute_sql(count_query)
+        count = int(result.runQueryRecord.items)
+        
+        log.info("Count %d - first %d" % (count, (start) ))
+        if count < (start):
+            raise EOFError
+        
+        query = """Select top %d orderid, invoicenum, invoicenum_prefix 
+                   From [Select Top %d * 
+                           from orders
+                           left join order_Status on orders.order_status = order_Status.id %s
+                           order by orderid DESC;]. as tbl
+                    order by orderid""" % (limit, count - start + 1, where)
+        log.debug("Query: %s" % query)
+        result = self._connection.execute_sql(query)
+        
+        recs = result.runQueryRecord
+        if not isinstance(recs, list):
+            recs = [recs]
+            
+        results = []
+        for rec in recs:
+            inv = "%s%s" % (rec.invoicenum_prefix, rec.invoicenum)
+            _result = self._connection.execute("getOrder", invoiceNum=inv, startFrom=False, batchSize=2, startNum=1)
+            results.append(_result.GetOrdersResponse.Order)
+        
+        return results
 
 
 def Connect(store_url, token):

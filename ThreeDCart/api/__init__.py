@@ -14,6 +14,7 @@ class ApiClient(object):
     def __init__(self, host, token, user_id): # user_id is ignored - provided only for library compatibility
         self._connection = Connect(host, token)
 
+    @property
     def connection(self):
         return self._connection
     
